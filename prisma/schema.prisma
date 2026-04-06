@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  name            String
+  university      String
+  email           String   @unique
+  emailVerified   Boolean  @default(false)
+  passwordHash    String
+  avatarUrl       String?
+  bio             String?
+  major           String?
+  year            String?  // Freshman, Sophomore, Junior, Senior
+  reputationScore Float    @default(0.0)
+  tokenBalance    Int      @default(50) // Starting token balance for new users
+  role            String   @default("student") // student | admin
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  skillsToTeach   UserSkillToTeach[]
+  skillsToLearn   UserSkillToLearn[]
+
+  givenReviews    Review[] @relation("Reviewer")
+  receivedReviews Review[] @relation("Reviewee")
+
+  badges          UserBadge[]
+  matches1        Match[]  @relation("MatchUser1")
+  matches2        Match[]  @relation("MatchUser2")
+
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+
+  tokenLedger     TokenTransaction[]
+}
+
+model Skill {
+  id       String @id @default(cuid())
+  name     String @unique
+  category String
+}
+
+model UserSkillToTeach {
+  id          String @id @default(cuid())
+  userId      String
+  skill       String
+  proficiency String @default("intermediate") // beginner, intermediate, advanced, expert
+  user        User   @relation(fields: [userId], references: [id])
+}
+
+model UserSkillToLearn {
+  id     String @id @default(cuid())
+  userId String
+  skill  String
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Match {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  status    String   // PENDING, ACCEPTED, REJECTED, COMPLETED
+  createdAt DateTime @default(now())
+
+  sessions  Session[]
+  messages  Message[]
+  user1     User   @relation("MatchUser1", fields: [user1Id], references: [id])
+  user2     User   @relation("MatchUser2", fields: [user2Id], references: [id])
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  matchId       String
+  scheduledAt   DateTime
+  durationMin   Int
+  status        String   @default("scheduled") // scheduled, completed, cancelled
+  tokensCost    Int      @default(10) // Tokens exchanged for this session
+  createdAt     DateTime @default(now())
+  match         Match    @relation(fields: [matchId], references: [id])
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  reviewerId String
+  revieweeId String
+  rating     Int      // 1 to 5
+  comment    String?
+  createdAt  DateTime @default(now())
+  reviewer   User     @relation("Reviewer", fields: [reviewerId], references: [id])
+  reviewee   User     @relation("Reviewee", fields: [revieweeId], references: [id])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  matchId    String
+  senderId   String
+  receiverId String
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  match      Match    @relation(fields: [matchId], references: [id])
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id])
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id])
+}
+
+model TokenTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int      // positive = earned, negative = spent
+  reason      String   // "teaching_session", "learning_session", "signup_bonus", "badge_reward"
+  sessionId   String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model Badge {
+  id          String @id @default(cuid())
+  name        String
+  iconEmoji   String
+  description String
+  criteria    String // JSON string defining auto-award criteria
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  badgeId   String
+  awardedAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
