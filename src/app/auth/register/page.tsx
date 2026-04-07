@@ -33,9 +33,10 @@ export default function RegisterPage() {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (register(form)) {
+    const success = await register(form);
+    if (success) {
       router.push("/profile");
     }
   };

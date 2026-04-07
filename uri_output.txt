@@ -1,0 +1,1 @@
+mongodb://pranavchinnawar_db_user:0kpSrRxl91dTW2Cg@ac-fg8c9gg-shard-00-01.mszuyn8.mongodb.net:27017,ac-fg8c9gg-shard-00-00.mszuyn8.mongodb.net:27017,ac-fg8c9gg-shard-00-02.mszuyn8.mongodb.net:27017/edubond?ssl=true&authSource=admin&replicaSet=atlas-hmmsch-shard-0&retryWrites=true&w=majority

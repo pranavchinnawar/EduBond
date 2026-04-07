@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from "react";
+import { loginUser, registerUser, getUserData } from "./actions";
 
 // ==================== TYPES ====================
 
@@ -130,8 +131,8 @@ interface AppState {
 }
 
 interface AppContextType extends AppState {
-  login: (email: string, password: string) => boolean;
-  register: (data: { name: string; email: string; university: string; major: string; year: string; password: string }) => boolean;
+  login: (email: string, password?: string) => Promise<boolean>;
+  register: (data: { name: string; email: string; university: string; major: string; year: string; password?: string }) => Promise<boolean>;
   logout: () => void;
   connectMatch: (userId: string) => void;
   sendMessage: (convId: string, content: string) => void;
@@ -184,6 +185,25 @@ export function AppProvider({ children }: { children: ReactNode }) {
     modalData: {},
   });
 
+  useEffect(() => {
+    const userId = localStorage.getItem("edubond_user_id");
+    if (userId) {
+      getUserData(userId).then(data => {
+        if (data && data.user) {
+          setState(s => ({
+            ...s,
+            isLoggedIn: true,
+            currentUser: data.user as User,
+            transactions: data.transactions as TokenTransaction[],
+            sessions: data.rawSessions as any,
+          }));
+        } else {
+           localStorage.removeItem("edubond_user_id");
+        }
+      });
+    }
+  }, []);
+
   const addToast = useCallback((message: string, type: "success" | "error" | "info" = "success") => {
     const id = `toast-${Date.now()}`;
     setState((s) => ({ ...s, toasts: [...s.toasts, { id, message, type }] }));
@@ -194,54 +214,35 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const dismissToast = useCallback((id: string) => {
     setState((s) => ({ ...s, toasts: s.toasts.filter((t) => t.id !== id) }));
-  }, []);
-
-  const login = useCallback((email: string, password: string) => {
+  }, []);  const login = useCallback(async (email: string, password?: string) => {
     if (!email.endsWith(".edu")) {
       addToast("Please use a valid .edu email address", "error");
       return false;
     }
-    if (password.length < 4) {
-      addToast("Password is required", "error");
+    const res = await loginUser(email, password);
+    if (!res.success || !res.user) {
+      addToast(res.message || "User not found or invalid password", "error");
       return false;
     }
-    // Create a fresh user from the email on login
-    const name = email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-    const uni = email.split("@")[1].replace(".edu", "").replace(/\b\w/g, (c) => c.toUpperCase());
-    setState((s) => {
-      // If user already exists in state (logged out then back in), restore them
-      if (s.currentUser && s.currentUser.email === email) {
-        return { ...s, isLoggedIn: true };
-      }
-      const user: User = {
-        id: `user-${Date.now()}`,
-        name,
-        email,
-        university: uni,
-        emailVerified: true,
-        bio: "",
-        major: "",
-        year: "",
-        reputationScore: 0,
-        tokenBalance: 50,
-        role: "admin",
-        avatarGradient: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
-        skillsToTeach: [],
-        skillsToLearn: [],
-        badges: DEFAULT_BADGES.map((b) => ({ ...b })),
-      };
-      return {
-        ...s,
-        isLoggedIn: true,
-        currentUser: user,
-        transactions: [{ id: `t-${Date.now()}`, date: "Today", desc: "Sign-Up Bonus", amount: 50 }, ...s.transactions],
-      };
-    });
-    addToast(`Welcome back! 🎉`);
+
+    localStorage.setItem("edubond_user_id", res.user.id);
+    
+    // Fetch remaining data
+    const extraData = await getUserData(res.user.id);
+
+    setState((s) => ({
+      ...s,
+      isLoggedIn: true,
+      currentUser: res.user as User,
+      transactions: extraData ? (extraData.transactions as TokenTransaction[]) : s.transactions,
+      sessions: extraData ? (extraData.rawSessions as any) : s.sessions,
+    }));
+
+    addToast(`Welcome back, ${res.user.name}! 🎉`);
     return true;
   }, [addToast]);
 
-  const register = useCallback((data: { name: string; email: string; university: string; major: string; year: string; password: string }) => {
+  const register = useCallback(async (data: any) => {
     if (!data.email.endsWith(".edu")) {
       addToast("Only .edu email addresses are allowed", "error");
       return false;
@@ -254,30 +255,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addToast("Password must be at least 8 characters", "error");
       return false;
     }
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: data.name,
-      email: data.email,
-      university: data.university,
-      major: data.major,
-      year: data.year,
-      tokenBalance: 50,
-      emailVerified: false,
-      bio: "",
-      reputationScore: 0,
-      role: "admin",
-      avatarGradient: "linear-gradient(135deg, #8b5cf6, #06b6d4)",
-      skillsToTeach: [],
-      skillsToLearn: [],
-      badges: DEFAULT_BADGES.map((b) => ({ ...b })),
-    };
-    setState((s) => ({ ...s, isLoggedIn: true, currentUser: newUser, transactions: [{ id: `t-${Date.now()}`, date: "Today", desc: "Sign-Up Bonus", amount: 50 }, ...s.transactions] }));
-    addToast(`Account created! Verification email sent to ${data.email} 📧`);
+    const res = await registerUser(data);
+    if (!res.success || !res.user) {
+      addToast(res.message || "Registration failed", "error");
+      return false;
+    }
+
+    localStorage.setItem("edubond_user_id", res.user.id);
+
+    setState((s) => ({ 
+      ...s, 
+      isLoggedIn: true, 
+      currentUser: res.user as User, 
+      transactions: [{ id: `t-${Date.now()}`, date: "Today", desc: "Sign-Up Bonus", amount: 50 }, ...s.transactions] 
+    }));
+    
+    addToast(`Account created! 🎉`);
     return true;
   }, [addToast]);
 
   const logout = useCallback(() => {
-    setState((s) => ({ ...s, isLoggedIn: false, currentUser: null }));
+    localStorage.removeItem("edubond_user_id");
+    setState((s) => ({ ...s, isLoggedIn: false, currentUser: null, transactions: [], sessions: [] }));
     addToast("You have been logged out", "info");
   }, [addToast]);
 
