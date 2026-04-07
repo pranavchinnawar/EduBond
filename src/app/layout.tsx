@@ -4,7 +4,7 @@ import { AppProvider } from "@/lib/store";
 import ClientShell from "@/components/client-shell";
 
 export const metadata: Metadata = {
-  title: "SkillSwap | Peer-to-Peer College Skill Exchange",
+  title: "EduBond | Peer-to-Peer College Skill Exchange",
   description:
     "Connect with your college community to teach what you know and learn what you need. Smart matching, flexible scheduling, and a gamified reputation system.",
 };

@@ -24,7 +24,7 @@ export default function Navbar() {
     <nav className="navbar">
       <div className="navbar-inner glass-panel">
         <Link href="/" className="navbar-logo text-gradient-purple">
-          SkillSwap
+          EduBond
         </Link>
 
         <div className="navbar-links">

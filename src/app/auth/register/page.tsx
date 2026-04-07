@@ -45,7 +45,7 @@ export default function RegisterPage() {
       <div className="glass-panel auth-card" style={{ maxWidth: "480px" }}>
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <div className="navbar-logo text-gradient-purple" style={{ fontSize: "1.75rem", marginBottom: "0.5rem" }}>
-            SkillSwap
+            EduBond
           </div>
           <h1 className="heading-2">Create Your Account</h1>
           <p style={{ margin: 0 }}>

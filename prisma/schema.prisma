@@ -3,12 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "mongodb"
 }
 
 model User {
-  id              String   @id @default(cuid())
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
   name            String
   university      String
   email           String   @unique
@@ -41,30 +40,30 @@ model User {
 }
 
 model Skill {
-  id       String @id @default(cuid())
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
   name     String @unique
   category String
 }
 
 model UserSkillToTeach {
-  id          String @id @default(cuid())
-  userId      String
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String @db.ObjectId
   skill       String
   proficiency String @default("intermediate") // beginner, intermediate, advanced, expert
   user        User   @relation(fields: [userId], references: [id])
 }
 
 model UserSkillToLearn {
-  id     String @id @default(cuid())
-  userId String
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
   skill  String
   user   User   @relation(fields: [userId], references: [id])
 }
 
 model Match {
-  id        String   @id @default(cuid())
-  user1Id   String
-  user2Id   String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  user1Id   String   @db.ObjectId
+  user2Id   String   @db.ObjectId
   status    String   // PENDING, ACCEPTED, REJECTED, COMPLETED
   createdAt DateTime @default(now())
 
@@ -75,8 +74,8 @@ model Match {
 }
 
 model Session {
-  id            String   @id @default(cuid())
-  matchId       String
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  matchId       String   @db.ObjectId
   scheduledAt   DateTime
   durationMin   Int
   status        String   @default("scheduled") // scheduled, completed, cancelled
@@ -86,9 +85,9 @@ model Session {
 }
 
 model Review {
-  id         String   @id @default(cuid())
-  reviewerId String
-  revieweeId String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  reviewerId String   @db.ObjectId
+  revieweeId String   @db.ObjectId
   rating     Int      // 1 to 5
   comment    String?
   createdAt  DateTime @default(now())
@@ -97,10 +96,10 @@ model Review {
 }
 
 model Message {
-  id         String   @id @default(cuid())
-  matchId    String
-  senderId   String
-  receiverId String
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  matchId    String   @db.ObjectId
+  senderId   String   @db.ObjectId
+  receiverId String   @db.ObjectId
   content    String
   read       Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -110,8 +109,8 @@ model Message {
 }
 
 model TokenTransaction {
-  id          String   @id @default(cuid())
-  userId      String
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String   @db.ObjectId
   amount      Int      // positive = earned, negative = spent
   reason      String   // "teaching_session", "learning_session", "signup_bonus", "badge_reward"
   sessionId   String?
@@ -120,7 +119,7 @@ model TokenTransaction {
 }
 
 model Badge {
-  id          String @id @default(cuid())
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   iconEmoji   String
   description String
@@ -128,9 +127,9 @@ model Badge {
 }
 
 model UserBadge {
-  id        String   @id @default(cuid())
-  userId    String
-  badgeId   String
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  badgeId   String   @db.ObjectId
   awardedAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id])
 }

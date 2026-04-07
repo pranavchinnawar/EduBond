@@ -1,5 +1,5 @@
 /**
- * Smart Skill Matching Algorithm for SkillSwap
+ * Smart Skill Matching Algorithm for EduBond
  *
  * Scores mutual alignment between users based on:
  * 1. Skill overlap (direct swap vs one-way)

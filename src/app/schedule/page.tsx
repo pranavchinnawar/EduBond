@@ -149,7 +149,7 @@ export default function SchedulePage() {
           <div>
             <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>Smart Scheduling Tip</div>
             <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.6 }}>
-              Sync your class calendar to automatically block busy times. SkillSwap will only suggest available time
+              Sync your class calendar to automatically block busy times. EduBond will only suggest available time
               slots to your learning partners, preventing scheduling conflicts.
             </p>
           </div>

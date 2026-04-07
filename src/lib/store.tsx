@@ -459,7 +459,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "skillswap_transactions.csv";
+    a.download = "edubond_transactions.csv";
     a.click();
     URL.revokeObjectURL(url);
     addToast("CSV exported! 📄");
@@ -471,18 +471,18 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .map((s) => {
         return [
           "BEGIN:VEVENT",
-          `SUMMARY:SkillSwap: ${s.type === "teaching" ? "Teaching" : "Learning"} ${s.skill}`,
+          `SUMMARY:EduBond: ${s.type === "teaching" ? "Teaching" : "Learning"} ${s.skill}`,
           `DESCRIPTION:Session with ${s.partnerName} (${s.durationMin} min)`,
           `DTSTART:20260408T160000`,
           "END:VEVENT",
         ].join("\n");
       });
-    const cal = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//SkillSwap//EN", ...events, "END:VCALENDAR"].join("\n");
+    const cal = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//EduBond//EN", ...events, "END:VCALENDAR"].join("\n");
     const blob = new Blob([cal], { type: "text/calendar" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "skillswap_sessions.ics";
+    a.download = "edubond_sessions.ics";
     a.click();
     URL.revokeObjectURL(url);
     addToast("Calendar file downloaded! 📅");

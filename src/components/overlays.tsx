@@ -308,7 +308,7 @@ function HowItWorksModal() {
   const { showModalFn } = useApp();
   return (
     <div>
-      <h3 className="heading-3" style={{ marginBottom: "1.25rem" }}>How SkillSwap Works</h3>
+      <h3 className="heading-3" style={{ marginBottom: "1.25rem" }}>How EduBond Works</h3>
       <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
         {[
           { emoji: "1️⃣", title: "Create Your Profile", desc: "Sign up with your .edu email, list skills you can teach and want to learn." },

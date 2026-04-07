@@ -45,7 +45,7 @@ export default function HomePage() {
           Build Your Legacy.
         </h1>
         <p style={{ fontSize: "1.15rem", color: "var(--text-secondary)", lineHeight: "1.7", marginBottom: "2rem" }}>
-          SkillSwap is the peer-to-peer exchange connecting college communities. Teach what you know, learn what you
+          EduBond is the peer-to-peer exchange connecting college communities. Teach what you know, learn what you
           need—earn tokens for every session and build a reputation that opens doors.
         </p>
         <div style={{ display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
